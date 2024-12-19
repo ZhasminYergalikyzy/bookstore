@@ -1,0 +1,253 @@
+/* Базовые стили */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+/* Шапка */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #7b583f;
+  color: white;
+}
+
+header .logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+header nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 1em;
+}
+
+header nav a:hover {
+  text-decoration: underline;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-bar input {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  width: 200px;
+}
+
+.search-bar button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #c0392b;
+}
+
+/* Баннер */
+.banner {
+  background: url('banner.jpg') center/cover no-repeat;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgb(62, 46, 46);
+  text-align: center;
+  position: relative;
+  background-color: #ffd685;
+}
+
+.banner-text h1 {
+  font-size: 4rem;
+}
+
+.banner-text p {
+  font-size: 1.2em;
+  margin-top: 10px;
+}
+
+/* Категории */
+.categories {
+  padding: 20px 30px;
+  background-color: #ecf0f1;
+}
+
+.categories h2 {
+  margin-bottom: 15px;
+}
+
+.category-list {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.category {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.category:hover {
+  background-color: #2980b9;
+}
+
+/* Популярные книги */
+.popular-books {
+  padding: 20px 30px;
+}
+
+.book-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* Обновленный стиль карточек */
+.card {
+  position: relative; /* Для позиционирования кнопки */
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Убираем всё, что выходит за пределы карточки */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 240px;
+  text-align: center;
+  padding: 15px;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid #ddd;
+}
+
+.card-body {
+  padding: 10px;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.card-price {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #555; /* Более мягкий цвет текста */
+  margin-bottom: 15px;
+}
+
+.card button {
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  padding: 12px 20px; /* Увеличенный размер кнопки */
+  border-radius: 8px; /* Закругление кнопки */
+  cursor: pointer;
+  font-size: 1rem; /* Увеличенный шрифт */
+  font-weight: bold;
+  transition: background-color 0.3s ease; /* Плавный переход цвета */
+}
+
+.card button:hover {
+  background-color: #d35400; /* Более насыщенный цвет при наведении */
+}
+
+
+/* Подвал */
+footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #7b583f;
+  color: white;
+  font-size: 0.9em;
+}
+
+/* Карусель */
+.carousel {
+  position: relative;
+  overflow: hidden;
+  height: 400px; /* Сокращено до 300px для соответствия баннеру */
+  margin-bottom: 30px;
+}
+
+.carousel-container {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item {
+  min-width: 100%;
+  position: relative;
+  display: none;
+}
+
+.carousel-item.active {
+  display: block;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-controls {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+}
+
+.carousel-controls button {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 20px;
+  transition: 0.3s;
+}
+
+.carousel-controls button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
