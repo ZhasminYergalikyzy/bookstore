@@ -19,17 +19,16 @@ func main() {
 		if r.Method == http.MethodPost {
 			var req BuyRequest
 
-			// Чтение данных из тела запроса
 			err := json.NewDecoder(r.Body).Decode(&req)
 			if err != nil {
 				http.Error(w, "Invalid JSON format", http.StatusBadRequest)
 				return
 			}
 
-			// Логируем ID книги, добавленной в корзину
+		
 			fmt.Printf("Book with ID %s added to the cart.\n", req.BookID)
 
-			// Ответ с подтверждением
+			
 			response := map[string]string{
 				"status":  "success",
 				"message": "Book added to the cart",
@@ -41,6 +40,6 @@ func main() {
 		}
 	})
 
-	// Запуск сервера на порту 8080
+	
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
