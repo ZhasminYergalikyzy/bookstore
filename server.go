@@ -7,21 +7,18 @@ import (
 	"net/http"
 )
 
-// Структура для обработки JSON данных
 type RequestData struct {
 	Message string `json:"message"`
 }
 
 func main() {
-	// Обработчик для POST запроса
 	http.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			var requestData RequestData
+			var requestData map[string]interface{}
 
-			// Декодируем JSON из тела запроса
+			// Декодируем JSON
 			err := json.NewDecoder(r.Body).Decode(&requestData)
 			if err != nil {
-				// В случае ошибки в JSON данных
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusBadRequest)
 				json.NewEncoder(w).Encode(map[string]string{
@@ -31,18 +28,28 @@ func main() {
 				return
 			}
 
-			// Если данные корректные, отправляем успешный ответ
+			// Проверяем наличие и тип поля "message"
+			message, ok := requestData["message"].(string)
+			if !ok || message == "" {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(map[string]string{
+					"status":  "fail",
+					"message": "Некорректное JSON-сообщение",
+				})
+				return
+			}
+
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(map[string]string{
 				"status":  "success",
 				"message": "Данные успешно приняты",
 			})
-			fmt.Println("Получено сообщение:", requestData.Message)
+			fmt.Println("Получено сообщение:", message)
 		}
 	})
 
-	// Обработчик для GET запроса
 	http.HandleFunc("/get", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			response := map[string]string{
@@ -54,7 +61,6 @@ func main() {
 		}
 	})
 
-	// Запуск сервера на порту 8080
 	fmt.Println("Сервер запущен на порту 8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
