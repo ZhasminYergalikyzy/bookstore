@@ -22,5 +22,5 @@ We offer a wide range of books in various genres:
 - **Classbooks**
 
 ## Front end 
-![Book Cover](front.jpg)
+![Book Cover](frontend.png)
 
