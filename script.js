@@ -262,35 +262,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Функция для отправки сообщения
 async function sendMessage(event) {
-    console.log("SendMessage function triggered"); // Добавлено для отладки
-    event.preventDefault(); // Предотвращаем стандартное поведение формы
+    console.log("SendMessage function triggered"); 
+    event.preventDefault(); 
 
-    const form = event.target; // Получаем форму
-    const formData = new FormData(form); // Создаем FormData из формы
-    const notification = document.getElementById('notification'); // Элемент для уведомлений
+    const form = event.target; 
+    const formData = new FormData(form); 
+    const notification = document.getElementById('notification'); 
 
     try {
         // Отправляем запрос на сервер
-        const response = await fetch(form.action, { // Используем URL из атрибута action
-            method: form.method, // Используем метод из атрибута method
-            body: formData, // Передаем данные формы
+        const response = await fetch(form.action, { 
+            method: form.method, 
+            body: formData,
         });
 
         if (response.ok) {
-            const data = await response.json(); // Читаем JSON-ответ от сервера
-            notification.textContent = data.status; // Показываем сообщение об успехе
-            notification.style.color = 'green'; // Зеленый текст для успешного уведомления
-            form.reset(); // Очищаем форму после отправки
+            const data = await response.json(); 
+            notification.textContent = data.status; 
+            notification.style.color = 'green'; 
+            form.reset(); 
         } else {
-            const errorData = await response.text(); // Читаем текст ошибки
-            notification.textContent = `Failed to send message: ${errorData}`; // Показываем сообщение об ошибке
-            notification.style.color = 'red'; // Красный текст для ошибок
+            const errorData = await response.text(); 
+            notification.textContent = `Failed to send message: ${errorData}`; 
+            notification.style.color = 'red'; 
         }
     } catch (error) {
-        console.error('Error sending message:', error); // Логируем ошибку в консоль
-        notification.textContent = 'An unexpected error occurred while sending the message.'; // Сообщение об общей ошибке
-        notification.style.color = 'red'; // Красный текст для общей ошибки
-    }
+        console.error('Error sending message:', error); 
+        notification.textContent = 'An unexpected error occurred while sending the message.'; 
+        notification.style.color = 'red'; 
 
     // Показываем уведомление
     notification.style.display = 'block';
@@ -302,13 +301,13 @@ async function sendMessage(event) {
 
     // Привязываем обработчик события submit
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM fully loaded and parsed"); // Для отладки
+    console.log("DOM fully loaded and parsed"); 
     const sendMessageForm = document.getElementById('sendMessageForm');
     if (sendMessageForm) {
-        console.log("Form found and event listener added"); // Для отладки
+        console.log("Form found and event listener added"); 
         sendMessageForm.addEventListener('submit', sendMessage);
     } else {
-        console.error("Form not found!"); // Для отладки
+        console.error("Form not found!"); 
     }
 });
 }
@@ -396,6 +395,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error(error));
     };
 });
+
+
 ////FOR ACCOUNT.HTML
 //////FOR SIGNIN
 // script.js
@@ -436,4 +437,4 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
-
+}

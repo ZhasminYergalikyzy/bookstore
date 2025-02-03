@@ -9,17 +9,13 @@ import (
 	"io"
 	"strconv"
 
-	// "io"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	// "strconv"
 	"text/template"
 
-	// "html/template"
-	// "log"
 	"mime/multipart"
 	"net/http"
 	"net/smtp"
@@ -53,7 +49,7 @@ type Fantasy struct {
 }
 type LogEntry struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	Timestamp time.Time `json:"timestamp"` // Используем time.Time для корректной работы с TIMESTAMP
+	Timestamp time.Time `json:"timestamp"` 
 	Level     string    `json:"level"`
 	Message   string    `json:"message"`
 }
@@ -78,7 +74,9 @@ var err error
 var logger = logrus.New()
 var jwtKey = []byte("my_secret_key")
 
-var limiter = rate.NewLimiter(1, 5) // 1 запрос в секунду с накоплением до 5 запросов
+var limiter = rate.NewLimiter(1, 5) 
+
+// OAUTH для логина
 var googleOauthConfig = &oauth2.Config{
 	ClientID:     "YOUR_GOOGLE_CLIENT_ID",
 	ClientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
@@ -103,7 +101,6 @@ func initDB() {
 		logger.WithError(err).Fatal("failed to connect to the database")
 	}
 	// Миграция для таблицы User
-	// Выполнение миграции
 	err = db.AutoMigrate(&User{})
 	if err != nil {
 		logger.WithError(err).Fatal("failed to migrate User table")
@@ -193,23 +190,23 @@ func main() {
 		if r.Method == http.MethodGet {
 			http.ServeFile(w, r, "fantasy.html")
 		} else if r.Method == http.MethodPost {
-			getFantasyBooks(w, r) // Возвращаем карточки при POST-запросе
+			getFantasyBooks(w, r) 
 		}
 	})
 	mux.HandleFunc("/bouquiniste", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "bouquiniste.html")
 	})
 
-	mux.HandleFunc("/books", getBooks)                 // Получение всех книг
-	mux.HandleFunc("/books/add", addBook)              // Добавление книги
-	mux.HandleFunc("/books/update", updateBook)        // Обновление книги
-	mux.HandleFunc("/books/delete", deleteBook)        // Удаление книги
-	mux.HandleFunc("/books/search", getBookByID)       //search
-	mux.HandleFunc("/send-message", handleSendMessage) //send message
+	mux.HandleFunc("/books", getBooks)                 
+	mux.HandleFunc("/books/add", addBook)              
+	mux.HandleFunc("/books/update", updateBook)       
+	mux.HandleFunc("/books/delete", deleteBook)       
+	mux.HandleFunc("/books/search", getBookByID)       
+	mux.HandleFunc("/send-message", handleSendMessage) 
 	mux.HandleFunc("/register", registerHandler)
 	mux.HandleFunc("/verify", verifyEmailHandler)
 	
-	// Административные функции
+	// Административные функции - не работают
 	adminMux := http.NewServeMux()
 	adminMux.HandleFunc("/admin/users", getAllUsersHandler)
 	adminMux.HandleFunc("/admin/users/update-role", updateUserRoleHandler)
@@ -224,9 +221,6 @@ func main() {
 
 	rateLimitedMux := rateLimitMiddleware(mux)
 
-	// http.HandleFunc("/send-message", handleSendMessage)
-	// Запуск сервера с поддержкой CORS
-	// HTTP сервер
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: enableCORS(rateLimitedMux),
@@ -243,12 +237,8 @@ func main() {
 			logger.Fatalf("ListenAndServe(): %v", err)
 		}
 	}()
-
-	// Ожидание сигнала завершения
 	<-quit
 	logger.Info("Server is shutting down...")
-
-	// Контекст с тайм-аутом для завершения активных соединений
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -547,6 +537,9 @@ func handleSendMessage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "Message sent successfully"})
 }
+
+//------------ РЕГИСТРАЦИЯ И АВТОРИЗАЦИЯ
+
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Запрос на /register:", r.Method)
 
@@ -637,8 +630,8 @@ func generateVerificationToken() string {
 }
 
 func sendVerificationEmail(to, token string) {
-	from := "bouquiniste19@gmail.com" // Укажи свою почту
-	password := "fjnzynihbertfxye" // Пароль от почты (App Password)
+	from := "bouquiniste19@gmail.com" // почта и пароль
+	password := "fjnzynihbertfxye" 
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
 
@@ -659,53 +652,6 @@ func sendVerificationEmail(to, token string) {
 	}
 }
 
-// func loginHandler(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != http.MethodPost {
-// 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-// 		return
-// 	}
-
-// 	var req struct {
-// 		Email    string `json:"email"`
-// 		Password string `json:"password"`
-// 	}
-
-// 	// Парсим тело запроса
-// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-// 		http.Error(w, "Invalid request", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	var user User
-// 	// Проверяем наличие пользователя в базе данных
-// 	if err := db.Where("email = ?", req.Email).First(&user).Error; err != nil {
-// 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
-// 		return
-// 	}
-
-// 	// Проверяем пароль
-// 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-// 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
-// 		return
-// 	}
-
-// 	// Проверяем, подтверждён ли email
-// 	if !user.Verified {
-// 		http.Error(w, "Email not verified", http.StatusForbidden)
-// 		return
-// 	}
-
-// 	// Генерация токена
-// 	token, err := generateJWT(user)
-// 	if err != nil {
-// 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	// Возвращаем токен в формате JSON
-// 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(map[string]string{"token": token})
-// }
 
 func generateJWT(user User) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour) // Токен действует 24 часа
@@ -858,7 +804,6 @@ func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/user", http.StatusSeeOther)
 }
-
 
 
 
