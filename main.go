@@ -575,7 +575,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	verificationToken := generateVerificationToken()
+	verificationToken := generateVerificationCode()
 
 	user := User{
 		Name:             req.Name,
@@ -623,10 +623,10 @@ func verifyEmailHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Email verified successfully. You can now log in.")
 }
 
-func generateVerificationToken() string {
-	b := make([]byte, 32)
-	rand.Read(b)
-	return base64.URLEncoding.EncodeToString(b)
+func generateVerificationCode() string {
+	n, _ := rand.Int(rand.Reader, big.NewInt(9000))
+	code := 1000 + int(n.Int64()) // Гарантируем 4 цифры
+	return fmt.Sprintf("%04d", code) // Преобразуем в строку с ведущими нулями, если нужно
 }
 
 func sendVerificationEmail(to, token string) {
