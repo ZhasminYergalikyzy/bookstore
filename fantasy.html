@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore</title>
+   
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js" defer></script>
+    
+
+    <style>
+        /* Винтажный стиль для навбара */
+body {
+  background-color: #ffffff; /* Белый фон для всей страницы */
+  margin: 0;
+  font-family: 'Georgia', serif; 
+}
+.navbar-vintage {
+  background-color: #f8ecd1;
+  border-bottom: 2px solid #7b583f;
+  font-family: 'Georgia', serif;
+  padding: 10px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-vintage .logo h1 {
+  font-size: 2rem;
+  color: #7b583f;
+  margin: 0;
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+}
+
+.navbar-vintage .nav-links .nav-link,
+.navbar-vintage .flex .nav-link {
+    color: #7b583f; /* Цвет текста */
+    margin: 0 15px; /* Отступы между ссылками */
+    font-size: 1.1rem; /* Размер шрифта */
+    text-decoration: none; /* Убираем подчеркивание */
+    font-weight: 500; /* Жирность шрифта */
+    transition: color 0.3s ease-in-out; /* Плавный переход цвета */
+}
+
+.navbar-vintage .nav-links .nav-link:hover,
+.navbar-vintage .flex .nav-link:hover {
+    color: #e67e22; /* Цвет текста при наведении */
+}
+
+.navbar-vintage .search-bar {
+  display: flex;
+  gap: 10px;
+}
+
+.vintage-input {
+  border: 2px solid #7b583f;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  background-color: #fff8e7;
+  width: 400px !important;
+}
+
+.vintage-input:focus {
+  outline: none;
+  border-color: #e67e22;
+}
+
+.btn-search {
+  background-color: #7b583f;
+  color: #f8ecd1;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.btn-search:hover {
+  background-color: #e67e22;
+}
+
+.banner {
+
+  color: #7b583f; /* Глубокий коричневый цвет текста */
+  text-align: center; /* Центровка текста */
+  padding: 50px 20px; /* Отступы для создания воздушности */
+  font-family: 'Georgia', serif; /* Винтажный шрифт */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Лёгкая тень для выделения */
+}
+
+.banner-text h1 {
+  font-size: 2.5rem; /* Размер заголовка */
+  margin-bottom: 20px; /* Отступ между заголовком и текстом */
+  font-weight: bold;
+}
+
+.banner-text p {
+  font-size: 1.3rem; /* Размер текста подзаголовка */
+  line-height: 1.6; /* Увеличенный межстрочный интервал */
+  margin: 0;
+}
+
+/* Стили для карусели */
+.carousel {
+  width: 100%; /* Карусель занимает всю ширину экрана */
+  overflow: hidden; /* Скрывает лишний контент */
+  position: relative; /* Для управления вложенными элементами */
+  margin: 0;
+  padding: 0;
+}
+
+.carousel-container {
+  display: flex; /* Горизонтальное расположение элементов */
+  width: 100%;
+  position: relative;
+}
+
+.carousel-item {
+  flex: 0 0 100%; /* Каждый элемент занимает 100% ширины контейнера */
+  position: relative;
+}
+
+.carousel-item img {
+  width: 100%; /* Изображение растягивается на всю ширину */
+  height: 500px; /* Устанавливаем фиксированную высоту */
+  display: block;
+  /* object-fit: contain; Изображение сохраняет пропорции и вписывается в контейнер */
+  object-position: center; /* Центрируем изображение */
+  background-color: #fff; /* Добавляем белый фон для пустых областей */
+}
+* Кнопки карусели */
+.carousel-btn {
+    position: absolute;
+    top: 50%; /* Центрируем по вертикали */
+    transform: translateY(-50%); /* Для точного выравнивания */
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем рамки */
+    border-radius: 50%; /* Круглые кнопки */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Чтобы кнопки отображались поверх изображения */
+    font-size: 20px;
+}
+
+/* Левая кнопка */
+.carousel-btn.prev-btn {
+    left: 10px; /* Смещение от левого края */
+}
+
+/* Правая кнопка */
+.carousel-btn.next-btn {
+    right: 10px; /* Смещение от правого края */
+}
+
+/* Анимация при наведении */
+.carousel-btn:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.divider {
+  border: none;
+  height: 2px;
+  background-color: #ccc; /* Цвет линии */
+  margin: 20px 0; /* Отступы сверху и снизу */
+}
+
+.icon-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px; /* Ширина круга */
+  height: 70px; /* Высота круга */
+  border-radius: 50%; /* Круглая форма */
+  background-color: #f0f0f0; /* Цвет фона круга */
+  margin: 0 auto; /* Центрирование */
+  font-size: 30px; /* Размер иконки */
+}
+.categories h2 {
+  font-family: 'Georgia', serif; /* Применение рукописного шрифта */
+  font-style: italic;
+  font-size: 36px; /* Размер шрифта */
+  text-align: left; /* Выравнивание текста влево */
+  margin: 20px 20px; /* Отступы сверху и снизу, и по 20px слева и справа */
+  padding-left: 20px; /* Дополнительный отступ слева */
+}
+
+.container {
+  display: flex; /* Убедитесь, что контейнер использует Flexbox */
+  align-items: center; /* Вертикальное выравнивание по центру */
+}
+
+.nav-link {
+  color: #7b583f; /* Цвет текста */
+  margin: 0 15px; /* Отступы между ссылками */
+  font-size: 1.1rem; /* Размер шрифта */
+  text-decoration: none; /* Убираем подчеркивание */
+  font-weight: 500; /* Жирность шрифта */
+  transition: color 0.3s ease-in-out; /* Плавный переход цвета */
+}
+
+.nav-link:hover {
+  color: #e67e22; /* Цвет текста при наведении */
+}
+
+.account-toggle {
+  position: relative; /* Для контекста позиционирования меню */
+}
+
+.account-menu {
+  display: none;
+  position: fixed; /* Фиксированное меню на экране */
+  top: 50px; /* Задайте отступ сверху от экрана */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: max-content;
+  margin-top: 8px;
+  white-space: nowrap;
+}
+
+
+.account-menu ul {
+  list-style: none; /* Убираем маркеры списка */
+  padding: 0; /* Убираем отступы */
+  margin: 0; /* Убираем отступы */
+}
+
+.account-menu li {
+  padding: 8px 12px; /* Отступы для элементов меню */
+}
+
+.account-menu li a {
+  text-decoration: none; /* Убираем подчеркивание */
+  color: #333; /* Цвет текста */
+  display: block; /* Делаем ссылку блочным элементом для удобства клика */
+}
+
+.account-menu li a:hover {
+  background-color: #f0f0f0; /* Цвет фона при наведении */
+}
+
+/* Стили для кнопки Sign In */
+.btn {
+  display: inline-block; /* Позволяет кнопке быть блочным элементом */
+  padding: 10px 15px; /* Отступы для удобства */
+  background-color: #165527; /* Цвет фона кнопки */
+  color: white; /* Цвет текста */
+  border: 1px solid #165527; /* Рамка того же цвета */
+  border-radius: 5px; /* Сглаживание углов */
+  text-align: center; /* Выравнивание текста по центру */
+  cursor: pointer; /* Курсор в виде руки */
+  text-decoration: none; /* Убираем подчеркивание */
+  transition: background-color 0.3s, border-color 0.3s; /* Плавный переход цвета */
+}
+
+/* Эффект при фокусе (когда кнопка активна) */
+.btn:focus {
+  outline: none; /* Убираем стандартную рамку фокуса */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Добавляем легкое свечение */
+}
+
+/* Стили для кнопки внутри выпадающего меню */
+.account-menu li button {
+  width: 100%; /* Кнопка растягивается на всю ширину */
+  background-color: #165527; /* Цвет фона в меню */
+  color: white; /* Цвет текста */
+  border: 1px solid #ccc; /* Легкая граница */
+  text-align: left; /* Выравнивание текста по левому краю */
+}
+
+.account-menu li button:hover {
+  background-color: #103b1b; /* При наведении фон темнеет */
+  color: white; /* Текст меняет цвет */
+}
+.create-account {
+  font-size: 14px; /* Уменьшаем размер шрифта */
+  text-decoration: none; /* Убираем подчеркивание */
+  display: inline-block; /* Чтобы ссылка вела себя как блочный элемент */
+  padding: 8px 0; /* Меньше отступов */
+}
+
+/* Эффект при наведении для Create Account */
+.create-account:hover {
+  text-decoration: underline; /* Подчеркивание при наведении */
+}
+
+/* Разделительная линия после Create Account */
+.create-account + hr {
+  margin: 10px 0; /* Отступы для линии */
+  border: 0;
+  border-top: 1px solid #ccc; /* Линия серого цвета */
+}
+
+
+.crud-section {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.crud-section h2 {
+  font-family: 'Dancing Script', cursive;
+  color: #6c757d;
+}
+
+.crud-section .btn {
+  font-size: 1.2em;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.crud-section .btn:hover {
+  transform: scale(1.05);
+}
+
+
+
+        /* Стили для контейнера */
+        #books-container {
+            display: grid; /* Включаем CSS Grid */
+            grid-template-columns: repeat(5, 1fr); /* 5 равных столбцов */
+            grid-auto-rows: auto; /* Автоматическая высота строк */
+            gap: 20px; /* Отступы между карточками */
+            padding: 20px; /* Внутренние отступы у контейнера */
+            background-color: #f9f9f9; /* Светлый фон */
+            border-radius: 10px; /* Скруглённые углы */
+            max-width: 1200px; /* Максимальная ширина контейнера */
+            margin: 0 auto; /* Центрирование контейнера */
+        }
+
+        /* Стили для карточек */
+        .book-card {
+            border: 1px solid #ccc; /* Граница карточки */
+            border-radius: 10px; /* Скруглённые углы карточки */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Тень для карточки */
+            padding: 15px; /* Внутренний отступ внутри карточки */
+            text-align: center; /* Центрирование содержимого карточки */
+            background-color: #fff; /* Белый фон у карточки */
+            transition: transform 0.2s, box-shadow 0.2s; /* Анимация при наведении */
+        }
+
+        .book-card:hover {
+            transform: scale(1.05); /* Увеличение карточки при наведении */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Увеличение тени при наведении */
+        }
+
+        .book-image {
+            width: 100%; /* Ширина изображения равна ширине карточки */
+            height: 150px; /* Фиксированная высота изображения */
+            object-fit: cover; /* Масштабирование изображения, сохраняя пропорции */
+            border-radius: 5px; /* Скруглённые углы изображения */
+            margin-bottom: 10px; /* Отступ снизу у изображения */
+        }
+
+        .book-title {
+            font-size: 1.2em; /* Размер текста заголовка */
+            font-weight: bold; /* Жирный текст заголовка */
+            margin: 10px 0; /* Отступы сверху и снизу у заголовка */
+        }
+
+        .book-description {
+            font-size: 0.9em; /* Размер текста описания */
+            color: #555; /* Цвет текста описания */
+            margin: 10px 0; /* Отступы сверху и снизу у описания */
+        }
+
+        .book-price {
+            font-size: 1em; /* Размер текста цены */
+            color: green; /* Цвет текста цены */
+            font-weight: bold; /* Жирный текст у цены */
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Navbar -->
+<header class="navbar-vintage">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <div class="logo">
+            <a href="index.html" class="nav-link"><h1>Flourish & Blotts</h1></a>
+        </div>
+        <nav class="nav-links d-flex">
+            
+            <a href="bouquiniste.html" class="nav-link">Bouquiniste</a>
+            <a href="#" class="nav-link">About Us</a>
+            <div class="search-bar d-flex">
+                <input type="text" placeholder="Search for..." class="form-control vintage-input">
+                <button class="btn btn-search">🔍</button>
+            </div>
+            <a href="#" class="nav-link flex items-center account-toggle">
+                <i class="fas fa-user-circle mr-1"></i> Мy account     
+                <i class="fas fa-caret-down ml-1"></i>
+            </a>
+            <div class="account-menu">
+                <ul>
+                    <li><a href="signin.html"> <button class="btn sign-in">Sign In</button></a></li>
+                    <li><a href="#" class="create-account">Create an Account</a></li>
+                    <hr>
+                    <li><a href="#">Manage Account</a></li>
+                    <li><a href="#">Order Status</a></li>
+                    <li><a href="#">My Digital Library</a></li>
+                    <li><a href="#">Address Book</a></li>
+                    <li><a href="#">Payment Methods</a></li>
+                </ul>
+            </div>
+            
+            <a href="#" class="nav-link flex items-center">
+                <i class="fas fa-heart mr-1"></i> Wishlist
+            </a>
+            <a href="#" class="nav-link flex items-center relative">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="absolute top-0 right-0 bg-gray-800 text-white text-xs rounded-full px-1"></span>
+            </a>
+            
+        </nav>
+    </div>
+
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <a href="#" class="nav-link">Books</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Fiction</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Nonfiction</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">eBooks</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Teenage & YA</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Kids</a>
+    </div>
+</header>
+    
+
+    <!-- Баннер -->
+    <section class="banner">
+        <div class="banner-text">
+            <h1>Fantasy catalog</h1>
+            
+        </div>
+    </section>
+  
+    <div id="books-container" class="books-container"></div> 
+    
+    <footer>
+        <hr>
+        <p>© 2024 Букинист. Все права защищены.</p>
+        <p>Мы в социальных сетях: </p>
+    </footer>
+
+    <script>
+      fetch('/fantasy', { method: 'POST' })
+          .then(response => response.text())
+          .then(html => document.getElementById('books-container').innerHTML = html)
+          .catch(error => console.error('Error loading books:', error));
+  </script>
+</body>
+</html>

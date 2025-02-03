@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+</head>
+<body>
+    
+    <!-- Navbar -->
+<header class="navbar-vintage">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <div class="logo">
+            <a href="index.html" class="nav-link"><h1>Flourish & Blotts</h1></a>
+        </div>
+        <nav class="nav-links d-flex">
+            
+            <a href="#" class="nav-link">Bouquiniste</a>
+            <a href="#" class="nav-link">About Us</a>
+            <div class="search-bar d-flex">
+                <input type="text" placeholder="Search for..." class="form-control vintage-input">
+                <button class="btn btn-search">🔍</button>
+            </div>
+            <a href="#" class="nav-link flex items-center account-toggle">
+                <i class="fas fa-user-circle mr-1"></i> Мy account     
+                <i class="fas fa-caret-down ml-1"></i>
+            </a>
+            <div class="account-menu">
+                <ul>
+                    <li><a href="signin.html"> <button class="btn sign-in">Sign In</button></a></li>
+                    <li><a href="#" class="create-account">Create an Account</a></li>
+                    <hr>
+                    <li><a href="profile.html">Manage Account</a></li>
+                    <li><a href="#">Order Status</a></li>
+                    <li><a href="#">My Digital Library</a></li>
+                    <li><a href="#">Address Book</a></li>
+                    <li><a href="#">Payment Methods</a></li>
+                </ul>
+            </div>
+            
+            <a href="#" class="nav-link flex items-center">
+                <i class="fas fa-heart mr-1"></i> Wishlist
+            </a>
+            <a href="#" class="nav-link flex items-center relative">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="absolute top-0 right-0 bg-gray-800 text-white text-xs rounded-full px-1"></span>
+            </a>
+            
+        </nav>
+    </div>
+
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <a href="#" class="nav-link">Books</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Fiction</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Nonfiction</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">eBooks</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Teenage & YA</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Kids</a>
+    </div>
+</header>
+    
+
+    <!-- Баннер -->
+    <section class="banner">
+        <div class="banner-text">
+            <h1>Want to sell your book?</h1>
+            <p>Sell your books here!</p>
+        </div>
+    </section>
+
+    <section class="crud-section container my-5">
+        <h2 class="text-center mb-4">Manage Your Books</h2>
+        <div class="d-flex flex-column align-items-center">
+            <div class="d-grid gap-3">
+                <button id="create-book-btn" class="btn btn-primary">📘 Add a New Book</button>
+                <button id="read-books-btn" class="btn btn-success">📚 View All Books</button>
+                <button id="update-book-btn" class="btn btn-warning">✏️ Update Book</button>
+                <button id="delete-book-btn" class="btn btn-danger">🗑️ Delete Book</button>
+                <button id="searchBookBtn">Search Book by ID</button>
+            </div>
+        </div>
+        <div class="filters">
+            <input type="text" id="filter-title" placeholder="Filter by title">
+            <input type="text" id="filter-author" placeholder="Filter by author">
+            <input type="text" id="filter-published" placeholder="Filter by published date (YYYY-MM-DD)">
+            <select id="sort-by">
+                <option value="">Sort by</option>
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="published">Published</option>
+            </select>
+            <select id="sort-order">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+            <button id="apply-filters">Apply</button>
+        </div>
+        <div id="error-message" style="display: none; color: red;"></div>
+
+       
+
+        
+    
+        <!-- Output Section -->
+        <div id="response-output" class="mt-5">
+            <h3 class="text-center">Books List</h3>
+            <table id="books-table" class="table table-bordered table-striped mt-3">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Published Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Данные книг будут заполняться динамически -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
+
+    <footer>
+        <hr>
+        <p>© 2024 Букинист. Все права защищены.</p>
+        <p>Мы в социальных сетях: </p>
+    </footer>
+    <script defer src="script.js"></script>
+</body>
+</html>

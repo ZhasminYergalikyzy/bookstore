@@ -1,253 +1,315 @@
-/* Базовые стили */
+/* Винтажный стиль для навбара */
 body {
+  background-color: #ffffff; /* Белый фон для всей страницы */
   margin: 0;
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  background-color: #f7f7f7;
-  color: #333;
+  font-family: 'Georgia', serif; /* Удобочитаемый шрифт по умолчанию */
+}
+.navbar-vintage {
+  background-color: #f8ecd1;
+  border-bottom: 2px solid #7b583f;
+  font-family: 'Georgia', serif;
+  padding: 10px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2, h3 {
+.navbar-vintage .logo h1 {
+  font-size: 2rem;
+  color: #7b583f;
   margin: 0;
-}
-
-/* Шапка */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 30px;
-  background-color: #7b583f;
-  color: white;
-}
-
-header .logo {
-  font-size: 1.5em;
+  font-family: 'Times New Roman', serif;
   font-weight: bold;
 }
 
-header nav a {
-  color: white;
-  text-decoration: none;
-  margin: 0 15px;
-  font-size: 1em;
+.navbar-vintage .nav-links .nav-link,
+.navbar-vintage .flex .nav-link {
+    color: #7b583f; /* Цвет текста */
+    margin: 0 15px; /* Отступы между ссылками */
+    font-size: 1.1rem; /* Размер шрифта */
+    text-decoration: none; /* Убираем подчеркивание */
+    font-weight: 500; /* Жирность шрифта */
+    transition: color 0.3s ease-in-out; /* Плавный переход цвета */
 }
 
-header nav a:hover {
-  text-decoration: underline;
+.navbar-vintage .nav-links .nav-link:hover,
+.navbar-vintage .flex .nav-link:hover {
+    color: #e67e22; /* Цвет текста при наведении */
 }
 
-.search-bar {
+.navbar-vintage .search-bar {
   display: flex;
-  align-items: center;
   gap: 10px;
 }
 
-.search-bar input {
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  width: 200px;
+.vintage-input {
+  border: 2px solid #7b583f;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  background-color: #fff8e7;
+  width: 400px !important;
 }
 
-.search-bar button {
-  background-color: #e74c3c;
-  color: white;
+.vintage-input:focus {
+  outline: none;
+  border-color: #e67e22;
+}
+
+.btn-search {
+  background-color: #7b583f;
+  color: #f8ecd1;
   border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
 }
 
-.search-bar button:hover {
-  background-color: #c0392b;
+.btn-search:hover {
+  background-color: #e67e22;
 }
 
-/* Баннер */
 .banner {
-  background: url('banner.jpg') center/cover no-repeat;
-  height: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: rgb(62, 46, 46);
-  text-align: center;
-  position: relative;
-  background-color: #ffd685;
+
+  color: #7b583f; /* Глубокий коричневый цвет текста */
+  text-align: center; /* Центровка текста */
+  padding: 50px 20px; /* Отступы для создания воздушности */
+  font-family: 'Georgia', serif; /* Винтажный шрифт */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Лёгкая тень для выделения */
 }
 
 .banner-text h1 {
-  font-size: 4rem;
+  font-size: 2.5rem; /* Размер заголовка */
+  margin-bottom: 20px; /* Отступ между заголовком и текстом */
+  font-weight: bold;
 }
 
 .banner-text p {
-  font-size: 1.2em;
-  margin-top: 10px;
+  font-size: 1.3rem; /* Размер текста подзаголовка */
+  line-height: 1.6; /* Увеличенный межстрочный интервал */
+  margin: 0;
 }
 
-/* Категории */
-.categories {
-  padding: 20px 30px;
-  background-color: #ecf0f1;
-}
-
-.categories h2 {
-  margin-bottom: 15px;
-}
-
-.category-list {
-  display: flex;
-  gap: 15px;
-  overflow-x: auto;
-  padding: 10px 0;
-}
-
-.category {
-  background-color: #3498db;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 20px;
-  text-align: center;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.category:hover {
-  background-color: #2980b9;
-}
-
-/* Популярные книги */
-.popular-books {
-  padding: 20px 30px;
-}
-
-.book-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-/* Обновленный стиль карточек */
-.card {
-  position: relative; /* Для позиционирования кнопки */
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  overflow: hidden; /* Убираем всё, что выходит за пределы карточки */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 240px;
-  text-align: center;
-  padding: 15px;
-}
-
-.card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.card img {
-  width: 100%;
-  height: auto;
-  border-bottom: 1px solid #ddd;
-}
-
-.card-body {
-  padding: 10px;
-}
-
-.card-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 10px 0;
-}
-
-.card-price {
-  font-size: 1rem;
-  color: #333;
-  margin-bottom: 15px;
-}
-
-.card-text {
-  font-size: 1rem;
-  color: #555; /* Более мягкий цвет текста */
-  margin-bottom: 15px;
-}
-
-.card button {
-  background-color: #e67e22;
-  color: white;
-  border: none;
-  padding: 12px 20px; /* Увеличенный размер кнопки */
-  border-radius: 8px; /* Закругление кнопки */
-  cursor: pointer;
-  font-size: 1rem; /* Увеличенный шрифт */
-  font-weight: bold;
-  transition: background-color 0.3s ease; /* Плавный переход цвета */
-}
-
-.card button:hover {
-  background-color: #d35400; /* Более насыщенный цвет при наведении */
-}
-
-
-/* Подвал */
-footer {
-  text-align: center;
-  padding: 20px;
-  background-color: #7b583f;
-  color: white;
-  font-size: 0.9em;
-}
-
-/* Карусель */
+/* Стили для карусели */
 .carousel {
-  position: relative;
-  overflow: hidden;
-  height: 400px; /* Сокращено до 300px для соответствия баннеру */
-  margin-bottom: 30px;
+  width: 100%; /* Карусель занимает всю ширину экрана */
+  overflow: hidden; /* Скрывает лишний контент */
+  position: relative; /* Для управления вложенными элементами */
+  margin: 0;
+  padding: 0;
 }
 
 .carousel-container {
-  display: flex;
-  transition: transform 0.5s ease-in-out;
+  display: flex; /* Горизонтальное расположение элементов */
+  width: 100%;
+  position: relative;
 }
 
 .carousel-item {
-  min-width: 100%;
+  flex: 0 0 100%; /* Каждый элемент занимает 100% ширины контейнера */
   position: relative;
-  display: none;
-}
-
-.carousel-item.active {
-  display: block;
 }
 
 .carousel-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100%; /* Изображение растягивается на всю ширину */
+  height: 500px; /* Устанавливаем фиксированную высоту */
+  display: block;
+  /* object-fit: contain; Изображение сохраняет пропорции и вписывается в контейнер */
+  object-position: center; /* Центрируем изображение */
+  background-color: #fff; /* Добавляем белый фон для пустых областей */
+}
+* Кнопки карусели */
+.carousel-btn {
+    position: absolute;
+    top: 50%; /* Центрируем по вертикали */
+    transform: translateY(-50%); /* Для точного выравнивания */
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем рамки */
+    border-radius: 50%; /* Круглые кнопки */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* Чтобы кнопки отображались поверх изображения */
+    font-size: 20px;
 }
 
-.carousel-controls {
-  position: absolute;
-  top: 50%;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  transform: translateY(-50%);
+/* Левая кнопка */
+.carousel-btn.prev-btn {
+    left: 10px; /* Смещение от левого края */
 }
 
-.carousel-controls button {
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
+/* Правая кнопка */
+.carousel-btn.next-btn {
+    right: 10px; /* Смещение от правого края */
+}
+
+/* Анимация при наведении */
+.carousel-btn:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.divider {
   border: none;
-  padding: 10px 15px;
-  cursor: pointer;
-  border-radius: 50%;
-  font-size: 20px;
-  transition: 0.3s;
+  height: 2px;
+  background-color: #ccc; /* Цвет линии */
+  margin: 20px 0; /* Отступы сверху и снизу */
 }
 
-.carousel-controls button:hover {
-  background: rgba(0, 0, 0, 0.8);
+.icon-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px; /* Ширина круга */
+  height: 70px; /* Высота круга */
+  border-radius: 50%; /* Круглая форма */
+  background-color: #f0f0f0; /* Цвет фона круга */
+  margin: 0 auto; /* Центрирование */
+  font-size: 30px; /* Размер иконки */
 }
+.categories h2 {
+  font-family: 'Georgia', serif; /* Применение рукописного шрифта */
+  font-style: italic;
+  font-size: 36px; /* Размер шрифта */
+  text-align: left; /* Выравнивание текста влево */
+  margin: 20px 20px; /* Отступы сверху и снизу, и по 20px слева и справа */
+  padding-left: 20px; /* Дополнительный отступ слева */
+}
+
+.container {
+  display: flex; /* Убедитесь, что контейнер использует Flexbox */
+  align-items: center; /* Вертикальное выравнивание по центру */
+}
+
+.nav-link {
+  color: #7b583f; /* Цвет текста */
+  margin: 0 15px; /* Отступы между ссылками */
+  font-size: 1.1rem; /* Размер шрифта */
+  text-decoration: none; /* Убираем подчеркивание */
+  font-weight: 500; /* Жирность шрифта */
+  transition: color 0.3s ease-in-out; /* Плавный переход цвета */
+}
+
+.nav-link:hover {
+  color: #e67e22; /* Цвет текста при наведении */
+}
+
+.account-toggle {
+  position: relative; /* Для контекста позиционирования меню */
+}
+
+.account-menu {
+  display: none;
+  position: fixed; /* Фиксированное меню на экране */
+  top: 50px; /* Задайте отступ сверху от экрана */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: max-content;
+  margin-top: 8px;
+  white-space: nowrap;
+}
+
+
+.account-menu ul {
+  list-style: none; /* Убираем маркеры списка */
+  padding: 0; /* Убираем отступы */
+  margin: 0; /* Убираем отступы */
+}
+
+.account-menu li {
+  padding: 8px 12px; /* Отступы для элементов меню */
+}
+
+.account-menu li a {
+  text-decoration: none; /* Убираем подчеркивание */
+  color: #333; /* Цвет текста */
+  display: block; /* Делаем ссылку блочным элементом для удобства клика */
+}
+
+.account-menu li a:hover {
+  background-color: #f0f0f0; /* Цвет фона при наведении */
+}
+
+/* Стили для кнопки Sign In */
+.btn {
+  display: inline-block; /* Позволяет кнопке быть блочным элементом */
+  padding: 10px 15px; /* Отступы для удобства */
+  background-color: #165527; /* Цвет фона кнопки */
+  color: white; /* Цвет текста */
+  border: 1px solid #165527; /* Рамка того же цвета */
+  border-radius: 5px; /* Сглаживание углов */
+  text-align: center; /* Выравнивание текста по центру */
+  cursor: pointer; /* Курсор в виде руки */
+  text-decoration: none; /* Убираем подчеркивание */
+  transition: background-color 0.3s, border-color 0.3s; /* Плавный переход цвета */
+}
+
+/* Эффект при фокусе (когда кнопка активна) */
+.btn:focus {
+  outline: none; /* Убираем стандартную рамку фокуса */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Добавляем легкое свечение */
+}
+
+/* Стили для кнопки внутри выпадающего меню */
+.account-menu li button {
+  width: 100%; /* Кнопка растягивается на всю ширину */
+  background-color: #165527; /* Цвет фона в меню */
+  color: white; /* Цвет текста */
+  border: 1px solid #ccc; /* Легкая граница */
+  text-align: left; /* Выравнивание текста по левому краю */
+}
+
+.account-menu li button:hover {
+  background-color: #103b1b; /* При наведении фон темнеет */
+  color: white; /* Текст меняет цвет */
+}
+.create-account {
+  font-size: 14px; /* Уменьшаем размер шрифта */
+  text-decoration: none; /* Убираем подчеркивание */
+  display: inline-block; /* Чтобы ссылка вела себя как блочный элемент */
+  padding: 8px 0; /* Меньше отступов */
+}
+
+/* Эффект при наведении для Create Account */
+.create-account:hover {
+  text-decoration: underline; /* Подчеркивание при наведении */
+}
+
+/* Разделительная линия после Create Account */
+.create-account + hr {
+  margin: 10px 0; /* Отступы для линии */
+  border: 0;
+  border-top: 1px solid #ccc; /* Линия серого цвета */
+}
+
+
+.crud-section {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.crud-section h2 {
+  font-family: 'Dancing Script', cursive;
+  color: #6c757d;
+}
+
+.crud-section .btn {
+  font-size: 1.2em;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.crud-section .btn:hover {
+  transform: scale(1.05);
+}
+
+

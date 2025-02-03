@@ -3,115 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Букинистический Магазин</title>
+    <title>Bookstore</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="/favicon.png" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script defer src="script.js"></script>
 </head>
 <body>
-    <!-- Шапка -->
-    <header>
-        <div class="logo">Букинист</div>
-        <nav>
-            <a href="#">Каталог</a>
-            <a href="#">Сдать книгу</a>
-            <a href="#">О нас</a>
-            <a href="#">Контакты</a>
-        </nav>
-        <div class="search-bar">
-            <input type="text" placeholder="Поиск книг...">
-            <button>🔍</button>
+    
+    <!-- Navbar -->
+<header class="navbar-vintage">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <div class="logo">
+            <h1>Flourish & Blotts</h1>
         </div>
-    </header>
+        <nav class="nav-links d-flex">
+            
+            <a href="bouquiniste.html" class="nav-link">Bouquiniste</a>
+            <a href="#" class="nav-link">About Us</a>
+            <div class="search-bar d-flex">
+                <input type="text" placeholder="Search for..." class="form-control vintage-input">
+                <button class="btn btn-search">🔍</button>
+            </div>
+            <a href="#" class="nav-link flex items-center account-toggle">
+                <i class="fas fa-user-circle mr-1"></i> Мy account     
+                <i class="fas fa-caret-down ml-1"></i>
+            </a>
+            <div class="account-menu">
+                <ul>
+                    <li><a href="signin.html"> <button class="btn sign-in">Sign In</button></a></li>
+                    <li><a href="account.html" class="create-account">Create an Account</a></li>
+                    <hr>
+                    <li><a href="profile.html">Manage Account</a></li>
+                    <li><a href="#">Order Status</a></li>
+                    <li><a href="#">My Digital Library</a></li>
+                    <li><a href="#">Address Book</a></li>
+                    <li><a href="#">Payment Methods</a></li>
+                </ul>
+            </div>
+            
+            <a href="#" class="nav-link flex items-center">
+                <i class="fas fa-heart mr-1"></i> Wishlist
+            </a>
+            <a href="#" class="nav-link flex items-center relative">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="absolute top-0 right-0 bg-gray-800 text-white text-xs rounded-full px-1"></span>
+            </a>
+            
+        </nav>
+    </div>
+
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <a href="#" class="nav-link">Books</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Fiction</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Nonfiction</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">eBooks</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Teenage & YA</a>
+        <span class="text-gray-300">|</span>
+        <a href="#" class="nav-link">Kids</a>
+    </div>
+</header>
+    
 
     <!-- Баннер -->
     <section class="banner">
         <div class="banner-text">
-            <h1>Добро пожаловать в Букинист</h1>
-            <p>Продайте свои книги или найдите лучшие предложения!</p>
+            <h1>Welcome to Digital Bouquiniste</h1>
+            <p>Sell your books or find the best deals!</p>
         </div>
     </section>
 
     <section class="carousel">
         <div class="carousel-container">
             <div class="carousel-item active">
-                <img src="1photo.jpg.WEBP" alt="Акция 1">
-                
-            </div>
-            <div class="carousel-item">
-                <img src="2photo.jpg.WEBP" alt="Акция 2">
-                
+                <img src="/Users/zhasminyergalikyzy/Desktop/bookworm/static/images/books.jpg" alt="Акция 1">
             </div>
             <!-- <div class="carousel-item">
-                <img src="banner3.jpg" alt="Акция 3">
-                <div class="carousel-caption">
-                    <h2>Примите участие в благотворительности</h2>
-                    <p>Пожертвуйте свои книги, чтобы помочь другим.</p>
-                </div>
+                <img src="2photo.jpg.WEBP" alt="Акция 2">
+            </div>
+            <div class="carousel-item">
+                <img src="offer3.jpg" alt="Акция 3">
             </div> -->
         </div>
-        <div class="carousel-controls">
-            <button class="prev">‹</button>
-            <button class="next">›</button>
-        </div>
     </section>
     
-
-    <!-- Категории -->
-    <section class="categories">
-        <h2>Категории</h2>
-        <div class="category-list">
-            <div class="category">Фантастика</div>
-            <div class="category">Романы</div>
-            <div class="category">Детективы</div>
-            <div class="category">Учебники</div>
-            <div class="category">Другое</div>
+   <!-- Категории -->
+<section class="categories">
+    <hr class="divider">
+    <h2>Genres</h2>
+    <div class="category-list d-flex justify-content-around">
+        <div class="category-item text-center">
+            <div class="icon-circle">
+                <i class="fas fa-book"></i>
+            </div>
+            <a href="fantasy.html" class="nav-link">Fantasy</a>
         </div>
-    </section>
-
-    <!-- Популярные книги -->
-    <section class="popular-books container mt-5">
-        <h2 class="text-center mb-4">Популярные книги</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4 d-flex justify-content-center">
-                <div class="card">
-                    <img src="harry_potter_1.jpg" class="card-img-top" alt="Книга 1">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Название книги</h5>
-                        <p class="card-text">500₸</p>
-                        <button class="btn btn-primary" data-book-id="1">Купить</button>
-                    </div>
-                </div>
+        <div class="category-item text-center">
+            <div class="icon-circle">
+                <i class="fas fa-heart"></i>
             </div>
-            <div class="col-md-4 mb-4 d-flex justify-content-center">
-                <div class="card">
-                    <img src="harry_potter_1.jpg" class="card-img-top" alt="Книга 2">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Название книги</h5>
-                        <p class="card-text">500₸</p>
-                        <button class="btn btn-primary" data-book-id="1">Купить</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4 d-flex justify-content-center">
-                <div class="card">
-                    <img src="harry_potter_1.jpg" class="card-img-top" alt="Книга 3">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Название книги</h5>
-                        <p class="card-text">500₸</p>
-                        <button class="btn btn-primary" data-book-id="1">Купить</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Добавьте дополнительные карточки здесь -->
+            <p>Romance</p>
         </div>
-    </section>
+        <div class="category-item text-center">
+            <div class="icon-circle">
+                <i class="fas fa-user-secret"></i>
+            </div>
+            <p>Mystery</p>
+        </div>
+        <div class="category-item text-center">
+            <div class="icon-circle">
+                <i class="fas fa-history"></i>
+            </div>
+            <p>Memoir</p>
+        </div>
+        <div class="category-item text-center">
+            <div class="icon-circle">
+                <i class="fas fa-child"></i>
+            </div>
+            <p>Biography</p>
+        </div>
+    </div>
+    <hr class="divider">
+</section>
+
+
     
-
     <!-- Подвал -->
     <footer>
+        <hr>
         <p>© 2024 Букинист. Все права защищены.</p>
         <p>Мы в социальных сетях: </p>
     </footer>
