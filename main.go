@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
+	
 
 	"os"
 	"os/signal"
@@ -229,25 +229,17 @@ func main() {
 	mux.HandleFunc("/verify", verifyEmailHandler)
 	mux.HandleFunc("/login", loginHandler)
 
-	
-	// Административные функции - не работают
-	adminMux := http.NewServeMux()
-	adminMux.HandleFunc("/admin/users", getAllUsersHandler)
-	adminMux.HandleFunc("/admin/users/update-role", updateUserRoleHandler)
-	adminMux.HandleFunc("/admin/users/delete", deleteUserHandler)
-
-	
-	http.HandleFunc("/auth/google", googleLoginHandler)
-	http.HandleFunc("/auth/google/callback", googleCallbackHandler)
-
-	mux.Handle("/admin/", roleMiddleware(adminMux, "admin"))
-	mux.Handle("/admin/users", authMiddleware(http.HandlerFunc(getAllUsersHandler)))
 
 	rateLimitedMux := rateLimitMiddleware(mux)
 
+	port := os.Getenv("PORT") // Берём порт из Render
+	if port == "" {
+    	port = "8080" // По умолчанию 8080, если Render не передал порт
+	}
+
 	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: enableCORS(rateLimitedMux),
+    	Addr:    ":" + port,
+    	Handler: enableCORS(rateLimitedMux),
 	}
 
 	// Канал для получения сигналов завершения
@@ -883,111 +875,6 @@ func roleMiddleware(next http.Handler, requiredRole string) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-func getAllUsersHandler(w http.ResponseWriter, r *http.Request) {
-	var users []User
-	if err := db.Find(&users).Error; err != nil {
-		http.Error(w, "Failed to fetch users", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(users)
-}
-func updateUserRoleHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var req struct {
-		UserID uint   `json:"user_id"`
-		Role   string `json:"role"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
-		return
-	}
-
-	var user User
-	if err := db.First(&user, req.UserID).Error; err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-
-	user.Role = req.Role
-	if err := db.Save(&user).Error; err != nil {
-		http.Error(w, "Failed to update user role", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "User role updated successfully"})
-}
-func deleteUserHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	userID, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
-
-	if err := db.Delete(&User{}, userID).Error; err != nil {
-		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "User deleted successfully"})
-}
-
-func googleLoginHandler(w http.ResponseWriter, r *http.Request) {
-	url := googleOauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-}
-
-func googleCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Query().Get("code")
-	if code == "" {
-		http.Error(w, "Code not found", http.StatusBadRequest)
-		return
-	}
-	token, err := googleOauthConfig.Exchange(r.Context(), code)
-	if err != nil {
-		http.Error(w, "Failed to exchange token", http.StatusInternalServerError)
-		return
-	}
-
-	client := googleOauthConfig.Client(r.Context(), token)
-	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
-	if err != nil {
-		http.Error(w, "Failed to get user info", http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-
-	var userInfo struct {
-		Email string `json:"email"`
-		Name  string `json:"name"`
-	}
-	json.NewDecoder(resp.Body).Decode(&userInfo)
-
-	var user User
-	db.Where("email = ?", userInfo.Email).FirstOrCreate(&user, User{
-		Name:      userInfo.Name,
-		Email:     userInfo.Email,
-		Confirmed: true,
-		Role:      "user",
-	})
-
-	http.Redirect(w, r, "/user", http.StatusSeeOther)
-}
-
-
 
 // enableCORS добавляет заголовки для поддержки CORS
 func enableCORS(next http.Handler) http.Handler {
