@@ -1,4 +1,208 @@
 console.log("JavaScript loaded"); // Проверка загрузки скрипта
+console.log("✅ script.js загружен!");
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ script.js загружен и выполняется");
+    const registerForm = document.getElementById("registerForm");
+    console.log("🔍 Найдена ли форма:", registerForm);
+
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value; // Получаем роль из формы
+    console.log("📤 Отправляем данные на сервер:", { name, email, password, role });
+
+    if (registerForm) {
+        console.log("✅ Форма регистрации найдена!");
+
+        registerForm.addEventListener("submit", async function (event) {
+            
+            console.log("✅ Обработчик submit сработал!");
+            const formData = new FormData(registerForm);
+            const data = Object.fromEntries(formData.entries());
+
+            if (data.password !== data.confirmPassword) {
+                alert("Passwords do not match");
+                return;
+            }
+
+            console.log("Отправка данных на сервер:", data);
+
+            try {
+                const response = await fetch("/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: data.name,
+                        email: data.email,
+                        password: data.password,
+                        role: data.role,
+                    }),
+                });
+
+                const result = await response.json();
+                console.log("Ответ сервера:", result);
+
+                document.getElementById("statusMessage").innerText = result.message;
+            } catch (error) {
+                console.error("Ошибка регистрации:", error);
+            }
+        });
+    }
+});
+document.addEventListener("DOMContentLoaded", function () {
+    const loginForm = document.getElementById("loginForm");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            console.log("📤 Отправка запроса на сервер:", {
+                method: "POST",
+                url: "http://localhost:8080/login",
+                body: { email, password }
+            });
+
+            try {
+                const response = await fetch("http://localhost:8080/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                console.log("📥 Ответ сервера:", response);
+
+                const result = await response.json();
+                console.log("📩 JSON-ответ сервера:", result);
+
+                if (response.ok) {
+                    localStorage.setItem("token", result.token);
+                    document.getElementById("statusMessage").innerText = "✅ Login successful! Redirecting...";
+                    setTimeout(() => {
+                        window.location.href = "me.html";
+                    }, 1000);
+                } else {
+                    document.getElementById("statusMessage").innerText = "❌ " + (result.error || "Login failed");
+                }
+            } catch (error) {
+                console.error("❌ Ошибка входа:", error);
+                document.getElementById("statusMessage").innerText = "❌ Ошибка соединения с сервером";
+            }
+        });
+    }
+
+    // Проверка токена и редирект
+    if (window.location.pathname.endsWith("me.html")) {
+        fetchProfile();
+    }
+
+    // Обработчик выхода (Logout)
+    const logoutButton = document.getElementById("logoutButton");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", function () {
+            localStorage.removeItem("token");
+            window.location.href = "signin.html"; // Перенаправление на страницу входа
+        });
+    }
+});
+
+// Функция загрузки профиля
+// async function fetchProfile() {
+//     const token = localStorage.getItem("token");
+
+//     if (!token) {
+//         console.log("❌ Пользователь не авторизован. Перенаправляем на страницу входа.");
+//         window.location.href = "account.html";
+//         return;
+//     }
+
+//     try {
+//         const response = await fetch("http://localhost:8080/api/profile", {
+//             method: "GET",
+//             headers: { Authorization: `Bearer ${token}` },
+//         });
+
+//         if (!response.ok) {
+//             console.log("❌ Ошибка загрузки профиля. Перенаправляем на вход...");
+//             localStorage.removeItem("token");
+//             window.location.href = "account.html";
+//             return;
+//         }
+
+//         const data = await response.json();
+//         console.log("✅ Данные профиля:", data);
+
+//         document.getElementById("profileInfo").innerText = `Добро пожаловать, ${data.message}`;
+
+//         // Проверяем роль пользователя
+//         if (data.role === "admin") {
+//             document.getElementById("adminSection").style.display = "block";
+//         } else {
+//             document.getElementById("adminSection").style.display = "none";
+//         }
+//     } catch (error) {
+//         console.error("❌ Ошибка загрузки профиля:", error);
+//         document.getElementById("profileInfo").innerText = "Ошибка загрузки профиля!";
+//     }
+//     document.addEventListener("DOMContentLoaded", fetchProfile);
+// }
+async function fetchProfile() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.log("❌ Пользователь не авторизован. Перенаправляем на страницу входа.");
+        window.location.href = "account.html";
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:8080/api/profile", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log("📡 Ответ сервера:", response.status); // Логируем статус ответа
+
+        if (!response.ok) {
+            console.log("❌ Ошибка загрузки профиля. Перенаправляем на вход...");
+            localStorage.removeItem("token");
+            window.location.href = "account.html";
+            return;
+        }
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            console.error("❌ Ошибка обработки JSON:", jsonError);
+            document.getElementById("profileInfo").innerText = "Ошибка загрузки профиля!";
+            return;
+        }
+
+        console.log("✅ Данные профиля:", data);
+
+        document.getElementById("profileInfo").innerText = `Добро пожаловать, ${data.message}`;
+
+        // Проверяем роль пользователя
+        const adminSection = document.getElementById("adminSection");
+        if (adminSection) {
+            adminSection.style.display = data.role === "admin" ? "block" : "none";
+        }
+    } catch (error) {
+        console.error("❌ Ошибка сети при загрузке профиля:", error);
+        document.getElementById("profileInfo").innerText = "Ошибка сети!";
+    }
+}
+
+// Вызываем `fetchProfile()` при загрузке страницы
+document.addEventListener("DOMContentLoaded", fetchProfile);
+
+
+
 
 // Находим кнопку и меню
 const accountToggle = document.querySelector('.account-toggle');
@@ -301,7 +505,7 @@ async function sendMessage(event) {
 
     // Привязываем обработчик события submit
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM fully loaded and parsed"); 
+    console.log("DOM fully loaded and parsed"); // Для отладки
     const sendMessageForm = document.getElementById('sendMessageForm');
     if (sendMessageForm) {
         console.log("Form found and event listener added"); 
@@ -310,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Form not found!"); 
     }
 });
+}
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -395,46 +600,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error(error));
     };
 });
-
-
 ////FOR ACCOUNT.HTML
 //////FOR SIGNIN
 // script.js
-document.addEventListener("DOMContentLoaded", function () {
-    const registerForm = document.getElementById("registerForm");
-
-    if (registerForm) {
-        registerForm.addEventListener("submit", async function (event) {
-            event.preventDefault();
-            const formData = new FormData(registerForm);
-            const data = Object.fromEntries(formData.entries());
-
-            if (data.password !== data.confirmPassword) {
-                alert("Passwords do not match");
-                return;
-            }
-
-            console.log("Отправка данных на сервер:", data);
-
-            try {
-                const response = await fetch("http://localhost:8080/register", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        name: data.name,
-                        email: data.email,
-                        password: data.password,
-                    }),
-                });
-
-                const result = await response.json();
-                console.log("Ответ сервера:", result);
-
-                document.getElementById("statusMessage").innerText = result.message;
-            } catch (error) {
-                console.error("Ошибка регистрации:", error);
-            }
-        });
-    }
-});
-}

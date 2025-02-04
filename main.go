@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"crypto/rand"
-	"encoding/base64"
+	"math/big"
+	"strings"
+
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,9 +24,9 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/time/rate"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -58,7 +60,7 @@ type User struct {
 	Name             string    `json:"name"`
 	Email            string    `gorm:"unique" json:"email"`
 	PasswordHash     string    `json:"-"`
-	Role             string    `gorm:"default:user" json:"role"`
+	Role             string    `json:"role"`
 	Confirmed        bool      `json:"confirmed"`
 	VerificationToken string   `gorm:"unique" json:"verification_token"`
 	CreatedAt        time.Time `json:"created_at"`
@@ -196,6 +198,26 @@ func main() {
 	mux.HandleFunc("/bouquiniste", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "bouquiniste.html")
 	})
+	mux.HandleFunc("/account", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "account.html")
+	})
+	
+	mux.Handle("/api/profile", authMiddleware(http.HandlerFunc(profileHandler)))
+
+	mux.Handle("/admin", roleMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "profile.html")
+	}), "admin"))
+	
+	mux.HandleFunc("/check_country", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"message": "Country check success!"})
+	})
+	
+
 
 	mux.HandleFunc("/books", getBooks)                 
 	mux.HandleFunc("/books/add", addBook)              
@@ -205,6 +227,8 @@ func main() {
 	mux.HandleFunc("/send-message", handleSendMessage) 
 	mux.HandleFunc("/register", registerHandler)
 	mux.HandleFunc("/verify", verifyEmailHandler)
+	mux.HandleFunc("/login", loginHandler)
+
 	
 	// Административные функции - не работают
 	adminMux := http.NewServeMux()
@@ -552,6 +576,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		Name     string `json:"name"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		Role     string `json:"role"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -559,6 +584,10 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
+
+	if req.Role != "admin" {
+        req.Role = "user" // По умолчанию все пользователи - user
+    }
 
 	fmt.Println("Полученные данные:", req)
 
@@ -568,6 +597,31 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var user User
+	err := db.Where("email = ?", req.Email).First(&user).Error
+
+	if err == nil {
+		// Email уже есть в БД
+		fmt.Println("⚠ Email уже зарегистрирован:", req.Email)
+
+		if !user.Confirmed {
+			user.VerificationToken = generateVerificationCode()
+			db.Model(&user).Update("verification_token", user.VerificationToken)
+		
+			fmt.Println("📩 Повторная отправка верификационного письма:", req.Email, "Код:", user.VerificationToken)
+			go sendVerificationEmail(user.Email, user.VerificationToken)
+		
+			json.NewEncoder(w).Encode(map[string]string{"message": "User already exists. Verification email resent."})
+			return
+		}
+		
+
+		// Если email подтверждён, просто возвращаем сообщение
+		json.NewEncoder(w).Encode(map[string]string{"message": "User already exists and is verified."})
+		return
+	}
+
+	// Если email не найден, создаём нового пользователя
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Println("Ошибка хеширования пароля:", err)
@@ -577,16 +631,17 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	verificationToken := generateVerificationCode()
 
-	user := User{
+	user = User{
 		Name:             req.Name,
 		Email:            req.Email,
 		PasswordHash:     string(passwordHash),
+		Role:             req.Role, // Сохраняем роль
 		Confirmed:        false,
 		VerificationToken: verificationToken,
 		CreatedAt:        time.Now(),
 	}
 
-	fmt.Println("Добавление пользователя в базу данных...")
+	fmt.Println("🛠 Сохраняем пользователя в БД:", user) // Логируем перед сохранением
 
 	if err := db.Create(&user).Error; err != nil {
 		fmt.Println("Ошибка создания пользователя:", err)
@@ -596,11 +651,13 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Пользователь добавлен!")
 
+	fmt.Println("📩 Отправка письма верификации для:", req.Email, "Код:", verificationToken)
 	go sendVerificationEmail(req.Email, verificationToken)
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"message": "User registered. Check your email for verification link."})
 }
+
 
 func verifyEmailHandler(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
@@ -630,6 +687,7 @@ func generateVerificationCode() string {
 }
 
 func sendVerificationEmail(to, token string) {
+	
 	from := "bouquiniste19@gmail.com" // почта и пароль
 	password := "fjnzynihbertfxye" 
 	smtpHost := "smtp.gmail.com"
@@ -652,6 +710,102 @@ func sendVerificationEmail(to, token string) {
 	}
 }
 
+// func loginHandler(w http.ResponseWriter, r *http.Request) {
+//     if r.Method != http.MethodPost {
+//         http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+//         return
+//     }
+
+//     var req struct {
+//         Email    string `json:"email"`
+//         Password string `json:"password"`
+//     }
+
+//     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+//         http.Error(w, "Invalid request", http.StatusBadRequest)
+//         return
+//     }
+
+//     var user User
+//     err := db.Where("email = ?", req.Email).First(&user).Error
+//     if err != nil {
+//         http.Error(w, "User not found", http.StatusUnauthorized)
+//         return
+//     }
+
+//     if !user.Confirmed {
+//         http.Error(w, "Email not verified", http.StatusForbidden)
+//         return
+//     }
+
+//     if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+//         http.Error(w, "Invalid password", http.StatusUnauthorized)
+//         return
+//     }
+
+//     token, err := generateJWT(user)
+//     if err != nil {
+//         http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+//         return
+//     }
+
+//     json.NewEncoder(w).Encode(map[string]string{"token": token})
+// }
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusMethodNotAllowed)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Method not allowed"})
+        return
+    }
+
+    var req struct {
+        Email    string `json:"email"`
+        Password string `json:"password"`
+    }
+
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request"})
+        return
+    }
+
+    var user User
+    err := db.Where("email = ?", req.Email).First(&user).Error
+    if err != nil {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusUnauthorized)
+        json.NewEncoder(w).Encode(map[string]string{"error": "User not found"})
+        return
+    }
+
+    if !user.Confirmed {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusForbidden)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Email not verified"})
+        return
+    }
+
+    if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusUnauthorized)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Invalid password"})
+        return
+    }
+
+    token, err := generateJWT(user)
+    if err != nil {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusInternalServerError)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Failed to generate token"})
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
 
 func generateJWT(user User) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour) // Токен действует 24 часа
@@ -663,33 +817,61 @@ func generateJWT(user User) (string, error) {
 		},
 	}
 
+	fmt.Println("🛠 Генерируем токен для:", user.Email, "Роль:", user.Role)
+
 	// Генерируем токен
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtKey) // jwtKey — секретный ключ
 }
 
-func authMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenStr := r.Header.Get("Authorization")
-		if tokenStr == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
 
-		claims := &Claims{}
-		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
-		})
 
-		if err != nil || !token.Valid {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), "user", claims)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+func profileHandler(w http.ResponseWriter, r *http.Request) {
+    user := r.Context().Value("user").(*Claims)
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{
+        "message": "Welcome, " + user.Email,
+        "role":    user.Role,
+    })
 }
+
+
+func authMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        tokenStr := r.Header.Get("Authorization")
+        fmt.Println("🔍 Получен заголовок Authorization:", tokenStr) // ЛОГ ДЛЯ ОТЛАДКИ
+
+        if tokenStr == "" {
+            http.Error(w, "Unauthorized: No token", http.StatusUnauthorized)
+            return
+        }
+
+        // Убираем "Bearer " из строки токена
+        parts := strings.Split(tokenStr, " ")
+        if len(parts) != 2 || parts[0] != "Bearer" {
+            fmt.Println("❌ Неправильный формат заголовка Authorization")
+            http.Error(w, "Unauthorized: Invalid token format", http.StatusUnauthorized)
+            return
+        }
+        tokenStr = parts[1]
+
+        claims := &Claims{}
+        token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+            return jwtKey, nil
+        })
+
+        if err != nil || !token.Valid {
+            fmt.Println("❌ Ошибка парсинга токена:", err) // ЛОГ ОШИБКИ
+            http.Error(w, "Unauthorized: Invalid token", http.StatusUnauthorized)
+            return
+        }
+
+        fmt.Println("✅ Токен успешно распознан. Пользователь:", claims.Email) // ЛОГ УСПЕХА
+        ctx := context.WithValue(r.Context(), "user", claims)
+        next.ServeHTTP(w, r.WithContext(ctx))
+    })
+}
+
 
 func roleMiddleware(next http.Handler, requiredRole string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
