@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"log"
 	"math/big"
 	"strings"
 
 	"encoding/json"
 	"fmt"
 	"io"
-	
 
 	"os"
 	"os/signal"
@@ -87,26 +87,47 @@ var googleOauthConfig = &oauth2.Config{
 	Endpoint:     google.Endpoint,
 }
 
+// func initDB() {
+// 	db, err = gorm.Open(sqlite.Open("./books.db"), &gorm.Config{})
+// 	if err != nil {
+// 		logger.WithError(err).Fatal("failed to connect to the database")
+// 	}
+
+// 	err = db.AutoMigrate(&Book{})
+// 	if err != nil {
+// 		logger.WithError(err).Fatal("failed to connect to the database")
+// 	}
+
+// 	err = db.AutoMigrate(&Fantasy{})
+// 	if err != nil {
+// 		logger.WithError(err).Fatal("failed to connect to the database")
+// 	}
+// 	// Миграция для таблицы User
+// 	err = db.AutoMigrate(&User{})
+// 	if err != nil {
+// 		logger.WithError(err).Fatal("failed to migrate User table")
+// 	}
+// }
+
 func initDB() {
-	db, err = gorm.Open(sqlite.Open("./books.db"), &gorm.Config{})
-	if err != nil {
-		logger.WithError(err).Fatal("failed to connect to the database")
-	}
+    dbPath := "/var/data/books.db" // Render-friendly путь к базе
 
-	err = db.AutoMigrate(&Book{})
-	if err != nil {
-		logger.WithError(err).Fatal("failed to connect to the database")
-	}
+    if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+        fmt.Println("📂 Создаём новую базу данных:", dbPath)
+    }
 
-	err = db.AutoMigrate(&Fantasy{})
-	if err != nil {
-		logger.WithError(err).Fatal("failed to connect to the database")
-	}
-	// Миграция для таблицы User
-	err = db.AutoMigrate(&User{})
-	if err != nil {
-		logger.WithError(err).Fatal("failed to migrate User table")
-	}
+    var err error
+    db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+    if err != nil {
+        log.Fatal("❌ Ошибка подключения к базе данных:", err)
+    }
+
+    fmt.Println("📡 Подключено к базе данных:", dbPath)
+
+    // Выполняем миграции
+    if err := db.AutoMigrate(&Book{}, &Fantasy{}, &User{}); err != nil {
+        log.Fatal("❌ Ошибка миграции базы данных:", err)
+    }
 }
 
 type DBHook struct {
@@ -702,52 +723,9 @@ func sendVerificationEmail(to, token string) {
 	}
 }
 
-// func loginHandler(w http.ResponseWriter, r *http.Request) {
-//     if r.Method != http.MethodPost {
-//         http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-//         return
-//     }
-
-//     var req struct {
-//         Email    string `json:"email"`
-//         Password string `json:"password"`
-//     }
-
-//     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-//         http.Error(w, "Invalid request", http.StatusBadRequest)
-//         return
-//     }
-
-//     var user User
-//     err := db.Where("email = ?", req.Email).First(&user).Error
-//     if err != nil {
-//         http.Error(w, "User not found", http.StatusUnauthorized)
-//         return
-//     }
-
-//     if !user.Confirmed {
-//         http.Error(w, "Email not verified", http.StatusForbidden)
-//         return
-//     }
-
-//     if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-//         http.Error(w, "Invalid password", http.StatusUnauthorized)
-//         return
-//     }
-
-//     token, err := generateJWT(user)
-//     if err != nil {
-//         http.Error(w, "Failed to generate token", http.StatusInternalServerError)
-//         return
-//     }
-
-//     json.NewEncoder(w).Encode(map[string]string{"token": token})
-// }
 func loginHandler(w http.ResponseWriter, r *http.Request) {
     if r.Method != http.MethodPost {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusMethodNotAllowed)
-        json.NewEncoder(w).Encode(map[string]string{"error": "Method not allowed"})
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
         return
     }
 
@@ -757,46 +735,90 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusBadRequest)
-        json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request"})
+        http.Error(w, "Invalid request", http.StatusBadRequest)
         return
     }
 
     var user User
     err := db.Where("email = ?", req.Email).First(&user).Error
     if err != nil {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusUnauthorized)
-        json.NewEncoder(w).Encode(map[string]string{"error": "User not found"})
+        http.Error(w, "User not found", http.StatusUnauthorized)
         return
     }
 
     if !user.Confirmed {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusForbidden)
-        json.NewEncoder(w).Encode(map[string]string{"error": "Email not verified"})
+        http.Error(w, "Email not verified", http.StatusForbidden)
         return
     }
 
     if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusUnauthorized)
-        json.NewEncoder(w).Encode(map[string]string{"error": "Invalid password"})
+        http.Error(w, "Invalid password", http.StatusUnauthorized)
         return
     }
 
     token, err := generateJWT(user)
     if err != nil {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusInternalServerError)
-        json.NewEncoder(w).Encode(map[string]string{"error": "Failed to generate token"})
+        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
         return
     }
 
-    w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(map[string]string{"token": token})
 }
+
+// func loginHandler(w http.ResponseWriter, r *http.Request) {
+//     if r.Method != http.MethodPost {
+//         w.Header().Set("Content-Type", "application/json")
+//         w.WriteHeader(http.StatusMethodNotAllowed)
+//         json.NewEncoder(w).Encode(map[string]string{"error": "Method not allowed"})
+//         return
+//     }
+
+//     var req struct {
+//         Email    string `json:"email"`
+//         Password string `json:"password"`
+//     }
+
+//     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+//         w.Header().Set("Content-Type", "application/json")
+//         w.WriteHeader(http.StatusBadRequest)
+//         json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request"})
+//         return
+//     }
+
+//     var user User
+//     err := db.Where("email = ?", req.Email).First(&user).Error
+//     if err != nil {
+//         w.Header().Set("Content-Type", "application/json")
+//         w.WriteHeader(http.StatusUnauthorized)
+//         json.NewEncoder(w).Encode(map[string]string{"error": "User not found"})
+//         return
+//     }
+
+//     if !user.Confirmed {
+//         w.Header().Set("Content-Type", "application/json")
+//         w.WriteHeader(http.StatusForbidden)
+//         json.NewEncoder(w).Encode(map[string]string{"error": "Email not verified"})
+//         return
+//     }
+
+//     if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+//         w.Header().Set("Content-Type", "application/json")
+//         w.WriteHeader(http.StatusUnauthorized)
+//         json.NewEncoder(w).Encode(map[string]string{"error": "Invalid password"})
+//         return
+//     }
+
+//     token, err := generateJWT(user)
+//     if err != nil {
+//         w.Header().Set("Content-Type", "application/json")
+//         w.WriteHeader(http.StatusInternalServerError)
+//         json.NewEncoder(w).Encode(map[string]string{"error": "Failed to generate token"})
+//         return
+//     }
+
+//     w.Header().Set("Content-Type", "application/json")
+//     json.NewEncoder(w).Encode(map[string]string{"token": token})
+// }
 
 
 func generateJWT(user User) (string, error) {
