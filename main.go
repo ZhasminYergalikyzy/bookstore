@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"log"
+
 	"math/big"
 	"strings"
 
@@ -108,13 +109,17 @@ var googleOauthConfig = &oauth2.Config{
 // 		logger.WithError(err).Fatal("failed to migrate User table")
 // 	}
 // }
-
 func initDB() {
-    dbPath := "/var/data/books.db" // Render-friendly путь
+    dbPath := "./books.db" // Локальный путь, который работает на Render и локально
 
-    // ✅ Проверяем, существует ли файл базы
+    // ✅ Проверяем, существует ли база
     if _, err := os.Stat(dbPath); os.IsNotExist(err) {
         fmt.Println("📂 База данных не найдена, создаём новую:", dbPath)
+        file, err := os.Create(dbPath)
+        if err != nil {
+            log.Fatal("❌ Ошибка создания файла базы данных:", err)
+        }
+        file.Close() // Закрываем файл после создания
     }
 
     // ✅ Подключаемся к базе
@@ -131,7 +136,6 @@ func initDB() {
         log.Fatal("❌ Ошибка миграции базы данных:", err)
     }
 }
-
 
 
 type DBHook struct {
