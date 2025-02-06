@@ -110,12 +110,19 @@ var googleOauthConfig = &oauth2.Config{
 // }
 
 func initDB() {
-    dbPath := "/var/data/books.db" // Render-friendly путь к базе
+    dbPath := "/var/data/books.db" // Render-friendly путь
 
-    if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-        fmt.Println("📂 Создаём новую базу данных:", dbPath)
+    // ✅ Создаём директорию, если её нет
+    if err := os.MkdirAll("/var/data", os.ModePerm); err != nil {
+        log.Fatal("❌ Ошибка при создании папки /var/data:", err)
     }
 
+    // ✅ Проверяем, существует ли файл базы
+    if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+        fmt.Println("📂 База данных не найдена, создаём новую:", dbPath)
+    }
+
+    // ✅ Подключаемся к базе
     var err error
     db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
     if err != nil {
@@ -124,11 +131,12 @@ func initDB() {
 
     fmt.Println("📡 Подключено к базе данных:", dbPath)
 
-    // Выполняем миграции
+    // ✅ Выполняем миграции
     if err := db.AutoMigrate(&Book{}, &Fantasy{}, &User{}); err != nil {
         log.Fatal("❌ Ошибка миграции базы данных:", err)
     }
 }
+
 
 type DBHook struct {
 	DB *gorm.DB
